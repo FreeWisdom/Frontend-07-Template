@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>人机对战三子棋</title>
+        <style>
+            .cell {
+                width: 100px;
+                height: 100px;
+                background-color: rgb(88, 40, 6);
+                display: inline-block;
+                border: solid 1px rgb(110, 207, 154);
+                vertical-align: middle;
+        
+                line-height: 100px;
+                font-size: 50px;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="board"></div>
+
+        <script>
+            let pattern = [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0]
+            ]
+
+            let color = 1;
+
+            function show() {
+                let board = document.getElementById("board");
+                
+                board.innerHTML = "";
+
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        let cell = document.createElement("div");
+                        cell.classList.add("cell");
+                        cell.innerText = 
+                            pattern[i][j] == 2 ? "❌" : 
+                            pattern[i][j] == 1 ? "⭕️" : "";
+                        board.appendChild(cell);
+                        cell.addEventListener("click", () => userMove(i, j));
+                    }
+                    board.appendChild(document.createElement("br"));
+                }
+            }
+
+            function userMove(i, j){
+                if(pattern[i][j] == 0){//只点击未落子的格子，排除已落子格子重复点击的可能；
+                    pattern[i][j] = color;//color初始值为1：⭕️，即先手为⭕️；
+                    if(check(pattern, color)){//check返回true，当前color获胜
+                        color = 3 - color;
+                        show();
+                        setTimeout(() => {//若不设置延时，alert会在show前出现；但断点中可以正常显示。why❓
+                            if(confirm(3 - color == 2 ? "❌获胜！是否重新开局？" : "⭕️获胜！是否重新开局？")){
+                                location.reload();
+                            }else{
+                                window.close();
+                            }
+                        }, 500);
+                    }else{//check为false无人获胜（1、一方将胜；2、双方将和****待补充；）
+                        color = 3 - color;
+                        show();
+                        if(willWin(pattern, color)){
+                            console.log(color == 2 ? "❌将获胜！" : "⭕️将获胜！")
+                        }
+                    }
+                    computerMove();
+                }
+            }
+
+            function computerMove(){
+                let point = bestChoice(pattern, color).point;
+                if(point){
+                    let i = point[0],
+                        j = point[1];
+                    pattern[i][j] = color;
+                }
+                if(check(pattern, color)){
+                    // alert(color == 2 ? "❌获胜！是否重新开局？" : "⭕️获胜！是否重新开局？")
+                    setTimeout(() => {//若不设置延时，alert会在show前出现；但断点中可以正常显示。why❓
+                        if(confirm(3 - color == 2 ? "❌获胜！是否重新开局？" : "⭕️获胜！是否重新开局？")){
+                            location.reload();
+                        }else{
+                            window.close();
+                        }
+                    }, 500);
+                }
+                color = 3 - color;
+                show();
+                setTimeout(() => stalemate(), 500);
+            }
+
+            function check(pattern, color){
+                //检查每一行
+                for (let i = 0; i < 3; i++) {
+                    let win = true;
+                    for (let j = 0; j < 3; j++) {
+                        if(pattern[i][j] !== color){
+                            win = false;
+                        }
+                    }
+                    if(win)
+                        return true;
+                }
+
+                //检查每一列
+                for (let i = 0; i < 3; i++) {
+                    let win = true;
+                    for (let j = 0; j < 3; j++) {
+                        if(pattern[j][i] !== color){
+                            win = false;
+                        }
+                    }
+                    if(win)
+                        return true;
+                }
+
+                //检查\斜,横竖坐标相等
+                {
+                    win = true;
+                    for (let i = 0; i < 3; i++) {
+                        if(pattern[i][i] !== color){
+                            win = false;
+                        }
+                    }
+                    if(win)
+                        return true;
+                }
+
+                //检查/斜，横竖坐标和相等
+                {
+                    win = true;
+                    for (let i = 0; i < 3; i++) {
+                        if(pattern[i][2 - i] !== color){
+                            win = false;
+                        }
+                    }
+                    if(win)
+                        return true;
+                }
+            }
+
+            function clone(pattern){
+                return JSON.parse(JSON.stringify(pattern));
+            }
+
+            function willWin(pattern, color){
+                //若有可能赢，返回赢点
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if(pattern[i][j])
+                            continue;
+                        let template = clone(pattern);
+                        template[i][j] = color;
+                        if(check(template, color))
+                            return [i, j];
+                    }
+                }
+                //若无可能赢，返回空点
+                return null;
+            }
+
+            //result（-1:负；0：和；1：胜；）
+            //甲（乙）下完，选出乙（甲）的最佳位置和最好的最终结果
+            function bestChoice(pattern, color){
+
+                //可判断一方即将胜利，返回该点
+                let dot;
+                if(dot = willWin(pattern, color)){
+                    return {
+                        point: dot,
+                        result: 1
+                    }
+                }
+
+                //无法判断胜负，且有点可走，使用递归，找到我方最佳点（递归处多理解）
+                let point = null;
+                let result = -2;
+                outer:
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        if(pattern[i][j])
+                            continue;
+                        let template = clone(pattern);
+                        template[i][j] = color;
+                        let opponentResult = bestChoice(template, 3 - color).result;//对方最好的结果
+                        if(-opponentResult > result){//-opponentResult为递归中‘最新的’我方最好结果 > result为递归中‘次新’的我方最好结果，
+                            result = -opponentResult;//对方最坏的结果，我方最好的结果
+                            point = [i, j];//对方最坏的点，我方最好的点
+                        }
+                        if(result == 1)//已判断出胜步剪枝
+                            break outer;
+                    }
+                }
+
+                //无法直接判我方胜：①递归中找到胜点，返回该点②递归中找到和点，最终下到无点可走，和；
+                return{
+                    point: point,
+                    result: point ? result : 0
+                }
+            }
+
+            show();
+
+            //僵局
+            function stalemate(){
+                let sum = 0;
+                for (let i = 0; i < 3; i++) {
+                    for (let j = 0; j < 3; j++) {
+                        sum = pattern[i][j] + sum;
+                    }
+                }
+                console.log(sum, pattern)
+                if(sum == 13 || sum == 14){
+                    if(confirm("和棋！是否重新开局？")){
+                        location.reload();
+                    }else{
+                        window.close();
+                    }
+                }
+            }
+
+        </script>
+    </body>
+</html>
