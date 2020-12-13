@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>广泛式搜索路径</title>
+        <style>
+            .cell{
+                display: inline-block;
+                width: 6px;
+                height: 6px;
+                background-color: antiquewhite;
+                border-bottom: solid 1px rgb(104, 161, 112);
+                border-right: solid 1px rgb(104, 161, 112);
+            }
+            #container{
+                font-size:0;/* 清除因子元素display：inline-block换行后，产生的行行间隔问题*/
+                width: 700px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container"></div><!-- 为了使所有childNodes与mapArray相对应，此处不应有回车换行，否则会多一个文本节点 -->
+        <button id="save">保存</button>
+
+        <script>
+//**********①实现地图编辑器
+            let mapArray = localStorage.mapArray ? JSON.parse(localStorage.mapArray) : Array(10000).fill(0);
+            let container = document.getElementById("container");
+            let mouseDown = false;
+            let clear = false;
+
+            for (let i = 0; i < mapArray.length; i++) {
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+                container.appendChild(cell);
+                // if(Number.isInteger((i+1)/100)){//100格换行
+                //     container.appendChild(document.createElement("br"));
+                // }
+
+                if(mapArray[i] == 1){
+                    cell.style.backgroundColor = "black";   
+                }
+
+                cell.addEventListener("mousemove", () => {
+                    if(mouseDown){
+                        cell.style.backgroundColor = "black";
+                        mapArray[i] = 1;
+                    }
+                    if(clear){
+                        cell.style.backgroundColor = "antiquewhite";
+                        mapArray[i] = 0;
+                    }
+                })
+            }
+
+            document.addEventListener("mousedown", e => {//e.which:左键-1-画、右键-3-擦；
+                if(e.which == 1){
+                    mouseDown = true;
+                }
+                if(e.which == 3){
+                    clear = true;
+                }
+            })
+
+            document.addEventListener("mouseup", () => mouseDown = clear = false);
+            document.addEventListener("contextmenu", e => e.preventDefault());//清除鼠标右击事件,让出擦除事件
+            document.getElementById("save").addEventListener("click", () => {
+                // localStorage.setItem("mapArray", JSON.stringify(mapArray));
+                localStorage["mapArray"] = JSON.stringify(mapArray);
+            })
+
+//**********②广度优先搜索实现寻路（能走过去，返回true）；
+//**********③通过异步async/await，实现广度优先搜索可视化渲染；
+//**********④通过记录pre坐标，实现广度优先搜索的最短路径可视化渲染；
+
+            //使用队列实现广度优先搜索；若改成栈则是深度优先搜索；
+            function sleep(time){
+                return new Promise((resolve) => {
+                    setTimeout(resolve, time);
+                })
+            }
+
+            async function shortestPath(mapArray, start, end){
+                let coordinateArray= Object.create(mapArray);//mapArray由于绘图作用，其中存的1或0[1···0··]；需要同样的数组存放坐标[[x,y]···]
+                var queue = [start];//数组式队列，实现先进先出；
+
+                //队列-进
+                async function insert(x, y, pre){
+                    if(x < 0 || x >= 100 || y < 0 || y >= 100)
+                        return;
+                    if(coordinateArray[y * 100 + x])
+                        return;
+                    
+                    await sleep(0);
+                    container.children[y * 100 + x].style.backgroundColor = "green";//广度优先搜索的过程可视化;
+                    coordinateArray[y * 100 + x] = pre;//在coordinateArray每一个子节点上记录父节点坐标;
+                    queue.push([x, y]);
+                }
+
+                //队列-出
+                while (queue.length) {
+                    
+                    //若[0,1]弹出队列；
+                    let [x, y] = queue.shift();
+                    // console.log(x, y)
+
+                    if(x === end[0] && y === end[1]){//找到终点，此时[x,y]为终点
+                        let path = [];
+
+                        while(x != start[0] || y != start[1]){//根据coordinateArray记录的父节点坐标，逆向搜索路径
+                            path.push(coordinateArray[y * 100 + x]);
+                            [x, y] = coordinateArray[y * 100 + x];//为x，y解构赋父节点的值
+                            await sleep(10);
+                            container.children[y * 100 +x].style.backgroundColor = "red";
+                        }
+                        return path;
+                    }
+
+                    //则与[0,1]相关的子节点插入队列；
+                    await insert(x - 1, y, [x, y]);
+                    await insert(x, y - 1, [x, y]);
+                    await insert(x + 1, y, [x, y]);
+                    await insert(x, y + 1, [x, y]);
+                    await insert(x - 1, y + 1, [x, y]);
+                    await insert(x + 1, y - 1, [x, y]);
+                    await insert(x + 1, y + 1, [x, y]);
+                    await insert(x - 1, y - 1, [x, y]);
+                }
+
+                return null;
+            }
+
+            shortestPath(mapArray, [0,0], [50, 50]);
+
+        </script>
+    </body>
+</html>
