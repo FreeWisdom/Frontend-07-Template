@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>语法分析器</title>
+    </head>
+    <body>
+        <script>
+            var regexp = /([0-9\.]+)|([ \t]+)|([\r\n]+)|(\+)|(\-)|(\*)|(\/)/g
+            var dictionary = ["数字", "空格", "换行", "加", "减", "乘", "除"];
+
+            function* tokenize(string){
+                var result = null;
+                var lastIndex = 0;
+                while (true) {
+
+                    oldLastIndex = regexp.lastIndex;
+                    result = regexp.exec(string);
+                    newLastIndex = regexp.lastIndex;
+
+                    if(!result) break;
+
+                    if(newLastIndex - oldLastIndex > result[0].length) break;
+
+                    let token = {
+                        type: null,
+                        value: null
+                    }
+
+                    for (let i = 1; i <= dictionary.length; i++) {
+                        if(result[i]){
+                            token.type = dictionary[i - 1];
+                            token.value = result[0];
+                        }
+                    }
+
+                    yield token;
+                }
+                yield {
+                    type: "EOF"
+                }
+            }
+
+            let source = [];
+
+            for (let t of tokenize("10 * 333 / 2 - 0 + 5")) {
+                if(t.type !== "换行" && t.type !== "空格"){
+                    source.push(t)
+                }
+            }
+
+
+            function Expression(source){
+                if(source[0].type === "加法表达式" && source[1] && source[1].type === "EOF"){
+                    let node = {
+                        type: "表达式",
+                        children: []
+                    }
+                    node.children.push(source.shift());
+                    node.children.push(source.shift());
+                    source.unshift(node);
+                    return node;
+                }
+
+                AdditiveExpression(source);
+                return Expression(source);
+            }
+
+            function AdditiveExpression(source){
+                if(source[0].type === "乘法表达式"){
+                    let node = {
+                        type: "加法表达式",
+                        children: [source[0]]
+                    }
+                    source[0] = node;
+                    return AdditiveExpression(source);
+                }
+
+                if(source[0].type === "加法表达式" && source[1] && source[1].type === "加"){
+                    let node = {
+                        type: "加法表达式",
+                        operator: "加",
+                        children: []
+                    }
+                    node.children.push(source.shift());
+                    node.children.push(source.shift());
+                    MultiplicativeExpression(source);
+                    node.children.push(source.shift());
+                    source.unshift(node);
+                    return AdditiveExpression(source);
+                }
+
+                if(source[0].type === "加法表达式" && source[1] && source[1].type === "减"){
+                    let node = {
+                        type: "加法表达式",
+                        operator: "减",
+                        children: []
+                    }
+                    node.children.push(source.shift());
+                    node.children.push(source.shift());
+                    MultiplicativeExpression(source);
+                    node.children.push(source.shift());
+                    source.unshift(node);
+                    return AdditiveExpression(source);
+                }
+
+                if(source[0].type === "加法表达式")
+                    return source[0];
+
+                MultiplicativeExpression(source);
+
+                return AdditiveExpression(source);
+            }
+            
+            function MultiplicativeExpression(source){
+                if(source[0].type === "数字"){
+                    let node = {
+                        type: "乘法表达式",
+                        children: [source[0]]
+                    }
+                    source[0] = node;
+                    return MultiplicativeExpression(source);
+                }
+
+                if(source[0].type === "乘法表达式" && source[1] && source[1].type === "乘"){
+                    let node = {
+                        type: "乘法表达式",
+                        operator: "乘",
+                        children: []
+                    }
+                    node.children.push(source.shift());
+                    node.children.push(source.shift());
+                    node.children.push(source.shift());
+                    source.unshift(node);
+                    return MultiplicativeExpression(source);
+                }
+
+                if(source[0].type === "乘法表达式" && source[1] && source[1].type === "除"){
+                    let node = {
+                        type: "乘法表达式",
+                        operator: "除",
+                        children: []
+                    }
+                    node.children.push(source.shift());
+                    node.children.push(source.shift());
+                    node.children.push(source.shift());
+                    source.unshift(node);
+                    return MultiplicativeExpression(source);
+                }
+
+                if(source[0].type === "乘法表达式")
+                    return source[0];
+            }
+
+            console.log(Expression(source))
+        </script>
+    </body>
+</html>
