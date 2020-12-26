@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>wildcard</title>
+    </head>
+    <body>
+        <!-- 例如pattern为："ab*cd*abc*a?d" -->
+        <!-- s = "adceb";
+             p = "*a*c*b" -->
+        <script>
+            function find(source, pattern){
+                if((source.length === 0 && pattern.length !== 0) || (source.length !== 0 && pattern.length === 0))
+                    return true;
+
+                //①****处理最后一个“*”要尽量多的匹配，前面的“*”
+                //为了找到最后一个“*”位置，判断有多少个“*”；
+                let starNum = 0;
+                for (let i = 0; i < pattern.length; i++) {
+                    if(pattern[i] === "*")
+                        starNum ++;
+                }
+
+                //②****处理没有*的情况，即p和s严格匹配的情况
+                if(starNum === 0){
+                    if(pattern.length !== source.length)
+                        return false;
+                    for (let i = 0; i < pattern.length; i++) {
+                        if(pattern[i] !== source[i] && pattern[i] !== "?"){
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                //③****匹配头，第一个*之前的部分（即“ab”），patternIndex代表pattern字符串位置，sourceIndex代表source字符串的位置；
+                let patternIndex = 0;
+                let sourceIndex = 0;
+
+                for (patternIndex = 0; pattern[patternIndex] !== "*"; patternIndex++) {
+                    if(source[patternIndex] !== pattern[patternIndex] && pattern[patternIndex] !== "?"){
+                        return false;
+                    }
+                }
+                //若走到此处说明第一个“*”前p和s是一一对应的关系，将source的sourceIndex位置移至patternIndex;
+                sourceIndex = patternIndex;
+
+                //④****匹配中，第一个“*”和最后一个“*”之间的“*..”，（即“*cd*abc”；）
+                for (let i = 0; i < starNum - 1; i++) {
+                    patternIndex ++;
+                    let subPattern = "";
+
+                    while (pattern[patternIndex] !== "*") {
+                        subPattern += pattern[patternIndex];
+                        patternIndex ++;
+                    }
+                    let reg = new RegExp(subPattern.replace(/\?/g, "[\\s\\S]"), "g");//返回匹配一段“*.x.x.x”的正则（即，“/cd/g”）；
+                    //注：注意学习此处reg.lastIndex()结合reg.exec("xxx")的用法；
+                    reg.lastIndex = sourceIndex;//此时sourceIndex为第一个“*”
+                    // console.log(reg.exec(source));//若匹配成功中打印[匹配结果]，reg.last相应增加；若未成功则打印null，reg.lastIndex===0；
+                    if(!reg.exec(source))//若未成功则返回false；
+                        return false;
+                    sourceIndex = reg.lastIndex;//若匹配成功，reg.last相应增加，此时sourceIndex为最后一个*的位置；
+                }
+
+                //⑤****匹配尾，最后一个“*”后面的部分，（即“*a?d”）
+                // && pattern.length - 1 - patternIndex === 0 && pattern[patternIndex] !== "*"
+                // console.log(source.length - 1 - sourceIndex, pattern.length - 1 - patternIndex, sourceIndex, patternIndex)
+                // if(source.length - 1 - sourceIndex < pattern.length - 1 - patternIndex){
+                //     return false
+                // }
+
+                for (let i = 0; i <= source.length - patternIndex && pattern[pattern.length - i] !== "*"; i++) {//①i=0;i<=5-4 && null !== "*"   //②i=1;i<=5-4 && b !== "*"
+                    if(source[source.length - i] !== pattern[pattern.length - i] && pattern !== "?" ){//①i=0;&&前 null===null 故整体为false；     //②i=1;若p和s的倒数的每一个都相等，则最终于67返回true;  若出现一个不等，且p中该位置也不为“？”，则返回false;
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+// "mis siss ip pi"
+// "m?? *ss *?i *pi"
+
+// "aa"
+// "a*"
+
+// "abcabczzzde"
+// "*abc???de *"
+            // console.log(find("mississippi", "m??*ss*?i*pi"))
+            // console.log(find("aa", "a"))
+            // console.log(find("aa", "a*"))
+            // console.log(find("aa", "aa"))
+            // console.log(find("abcabczzzde", "*abc???de*"))
+            // console.log(find("", "******"))
+            console.log(find("abcabcabxaac", "a*b?*b?x*c"))
+
+        </script>
+    </body>
+</html>

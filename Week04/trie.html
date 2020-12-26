@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>字典树 查找出现最多次数字符串</title>
+    </head>
+    <body>
+        <script>
+            let end = Symbol("end");
+
+            class Trie {
+                constructor(){
+                    //使用空对象保存字典树里面的值（即，字符串），js中最适合用作保存字典树分支的数据结构是Object或map，而字典树只存字符串，所以map和Object无区别；
+                    this.root = Object.create(null);
+                }
+
+                insert(word){
+                    let node = this.root;
+
+                    for (const w of word) {
+
+                        //若子🌲不存在，则先以遍历到的字符串中的一项字符为名，创建这棵子树。即：c:{}
+                        if(!node[w])
+                            node[w] = Object.create(null);
+
+                        //再将node，前进到下一层。即：保持node总是在最内一层
+                        node = node[w];
+                    }
+                    
+                    //$作为截止符，利用Symbol可与字符串“$”区分
+                    if(!(end in node))
+                        node[end] = 0;
+                    
+                    node[end] ++;
+                }
+
+                most(){
+                    let max = 0;
+                    let maxWord = "";
+
+                    let visit = (node, word) => {
+
+                        if(node[end] && node[end] > max){
+                            max = node[end];
+                            maxWord = word;
+                        }
+
+                        for(const w in node) {
+                            // node = node[w]    //此处若将node传入visit，则node会改变，从而找不到相应的w；
+                            visit(node[w], word + w);//递归调用，更深入的探索对象
+                        }
+                    }
+                    
+                    visit(this.root, "")
+
+                    console.log(maxWord, max, this.root);
+                }
+            }
+
+            //生成随机字母，若“a”则为小写，若“A”则为大写
+            function randomWord(length){
+                var s = "";
+                for (let i = 0; i < length; i++) {                    
+                    s += String.fromCharCode(Math.random() * 26 + "A".charCodeAt(0));
+                }
+                return s;
+            }
+
+            const trie = new Trie("root")
+
+            for (let i = 0; i < 100000; i++) {
+                trie.insert(randomWord(4))
+            }
+
+            trie.most();
+
+        </script>
+    </body>
+</html>
