@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>解决object{}嵌套层监听失效</title>
+    </head>
+    <body>
+        <script>
+            let callbacks = new Map();
+            let useReactivities = [];
+            let reactivities = new Map();       //⑤故需要全局表格，缓存由于嵌套object{}，产生的proxy；
+
+            let object = {
+                a: {
+                    c: 3
+                },
+                b: 2
+            }
+
+            function reactive (object){
+                //⑥若有，则获取缓存中的proxy；
+                if(reactivities.has(object)) {
+                    return reactivities.get(object);
+                }
+
+                //⑦若无，则缓存该proxy
+                let proxy = new Proxy(object, {
+                    set(obj, prop, val){
+                        obj[prop] = val;
+                        if(callbacks.get(obj))
+                            if(callbacks.get(obj).get(prop))
+                                for (let callback of callbacks.get(obj).get(prop))
+                                    callback();
+                        return obj[prop];
+                    },
+
+                    get(obj, prop){
+                        useReactivities.push([obj, prop]);
+                        //①当obj[prop]是对象的时候，再递归调用reactive(obj[prop])；
+                        //②但是此时reactive(obj[prop])生成了一个新的proxy;
+                        //③`effect(() => {})`中监听的`console.log(po.a.c)`proxy是A，
+                        //④而通过effect()调用的proxy是B；
+
+                        if(typeof obj[prop] === "object")
+                            return reactive(obj[prop]);     //A
+
+                        return obj[prop];                   //B
+                    }
+                })
+
+                reactivities.set(object, proxy);
+
+                return proxy;
+            }
+
+            function effect(callback){
+                useReactivities = [];
+                callback();
+
+                for (let reactivity of useReactivities) {
+                    if(!callbacks.has(reactivity[0])) {
+                        callbacks.set(reactivity[0], new Map());
+                    }
+
+                    if(!callbacks.get(reactivity[0]).has(reactivity[1])) {
+                        callbacks.get(reactivity[0]).set(reactivity[1], [])
+                    }
+
+                    callbacks.get(reactivity[0]).get(reactivity[1]).push(callback);
+                }
+            }
+
+            let po = reactive(object);
+
+            effect(() => {
+                console.log(po.a.c)
+            })
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>实现基本拖拽</title>
+    </head>
+    <body>
+        <div id="draggable" style="width: 100px;height: 100px;background-color: red;"></div>
+        <script>
+            let draggable = document.getElementById("draggable");
+            let baseX = 0;
+            let baseY = 0;
+            //①在`mousedown`事件中监听`mousemove`&`mouseup`事件。避免了鼠标一开始未点击时在屏幕滑动的监听。
+            draggable.addEventListener("mousedown", function(event){
+                let startX = event.clientX;
+                let startY = event.clientY;
+
+                let up = event => {
+                    //④拖动第一次成功，为了使拖动第二次在第一次的基础上再拖动，故添加`baseX`&`baseY`，记录上一次xy的基础，然后在move中加上以`baseX`&`baseY`为基础的移动;
+                    baseX = baseX + event.clientX - startX;
+                    baseY = baseY + event.clientY - startY;
+
+                    //③`mouseup`时，删除鼠标move&&鼠标up事件
+                    document.removeEventListener("mousemove", move);
+                    document.removeEventListener("mouseup", up);
+                }
+
+                //④鼠标走到哪，让draggable移动到哪;
+                    //`event.clientX - startX`针对拖拽后的鼠标进行固定，但此时第二次移动未在第一次移动的基础上进行，故仍有bug；
+                let move = event => {
+                    draggable.style.transform = `translate(${baseX + event.clientX - startX}px, ${baseY + event.clientY - startY}px)`;
+                }
+                
+                //②监听`mousemove`&`mouseup`事件时应该在document上监听，而不应在draggable监听。（关于拖拽的小技巧）：
+                    //1、若在`draggable`监听，当鼠标快速移动，鼠标可能移开`draggable`区域，而导致draggable掉落，出现拖断现象；
+                    //2、若在`document`监听，会产生捕捉鼠标的效果，鼠标移动出浏览器外也会监听到。而若在`draggable`监听，鼠标移出浏览器无法监听；
+                document.addEventListener("mouseup", up);
+                document.addEventListener("mousemove", move);
+            })
+        </script>
+    </body>
+</html>

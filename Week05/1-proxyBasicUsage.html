@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>proxy的基本方法</title>
+    </head>
+    <body>
+        <script>
+            let object = {
+                a: 1,
+                b: 2
+            }
+            //此时若访问其中的a或b属性，无法在访问时候加入任何监听代码，此乃js最底层的机制（单纯的数据存储），无法改变；
+            //若既想要设置一个普通对象，又要有监听机制。则需要proxy把该对象做一层包裹。
+            //创建Proxy 对象用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）。
+            //const p = new Proxy(target, handler)
+            //target：要使用 Proxy 包装的目标对象（可以是任何类型的对象，包括原生数组，函数，甚至另一个代理）。
+            //handler：一个通常以函数作为属性的对象，各属性中的函数分别定义了在执行各种操作时代理 p 的行为。
+            
+            let po = new Proxy(object, {
+                //在设置该对象的属性的时候使用 set() 函数
+                set(obj, prop, val){
+                    console.log(obj, prop, val)
+                }
+            })
+
+            po.x = 9;
+            //此时调用了 set() console如下：{a: 1, b: 2} "x" 9
+        </script>
+    </body>
+</html>

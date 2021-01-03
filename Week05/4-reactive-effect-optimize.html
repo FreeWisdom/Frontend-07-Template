@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>effect()代替事件监听的优化，</title>
+    </head>
+    <body>
+        <script>
+            let callbacks = new Map();
+            let useReactivities = [];
+
+            let object = {
+                a: 1,
+                b: 2
+            }
+
+            function reactive (object){
+                return new Proxy(object, {
+                    set(obj, prop, val){
+                        obj[prop] = val;
+                        //⑦当更改po.a或者po.b属性时，根据⑥中callbacks的存储结构，可以按照参数需求取出相应callback()执行
+                        console.log(callbacks)
+                        if(callbacks.get(obj))
+                            if(callbacks.get(obj).get(prop))
+                                for (let callback of callbacks.get(obj).get(prop))
+                                    callback();
+                        console.log(obj[prop])
+                        return obj[prop];
+                    },
+
+                    get(obj, prop){
+                        //④由于③中的引发，将两个参数push进useReactivities[];
+                        useReactivities.push([obj, prop]);
+                        console.log(useReactivities);
+                        return obj[prop];
+                    }
+                })
+            }
+
+            function effect(callback){
+                //②清空usedReactivities;
+                useReactivities = [];
+
+                //③调用callback中的console.log(po.a, po.b)，引发reactive()中的get();
+                callback();
+
+                //⑤由于④的push，如此方知，在callback中调用的console.log(po.a, po.b)，调用的变量`a/b`均在useReactivities[]中
+                //⑥在callbacks{}里面，将调用变量的信息如下存储：
+                // callbacks{
+                //     {a: 1, b: 2}: {"a": [callback], "b": [callback], "c": [callback], ...}
+                // }
+                for (let reactivity of useReactivities) {
+                    if(!callbacks.has(reactivity[0])) {
+                        callbacks.set(reactivity[0], new Map());
+                    }
+
+                    if(!callbacks.get(reactivity[0]).has(reactivity[1])) {
+                        callbacks.get(reactivity[0]).set(reactivity[1], [])
+                    }
+
+                    callbacks.get(reactivity[0]).get(reactivity[1]).push(callback);
+                }
+            }
+
+            let po = reactive(object);
+
+            //⑧最终在effect中完成针对`po`的po.a或者po.b更改值时的监视
+            //即：若执行`po.a = 9`，通过在effect(() => {})的`{}`自执行中，可以console.log()出po所属属性将要变化的值，即a = 9, b不变 ；
+            //①先自执行，引动`po.a`或者`po.b`，此时po被reactive(object)针对object进行代理，然后执行effect(callback)将callback传入；
+            effect(() => {
+                console.log(po.a)
+                console.log(po.b)
+                console.log(po.c)
+            })
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>effect()代替事件监听的实现</title>
+    </head>
+    <body>
+        <script>
+            let callbacks = [];
+
+            let object = {
+                a: 1,
+                b: 2
+            }
+
+            function reactive (object){
+                return new Proxy(object, {
+                    set(obj, prop, val){
+                        obj[prop] = val;
+                        for (let callback of callbacks) {
+                            callback();
+                        }
+                        return obj[prop];
+                    },
+
+                    get(obj, prop){
+                        console.log(obj, prop);
+                        return obj[prop];
+                    }
+                })
+            }
+
+            function effect(callback){
+                callbacks.push(callback);
+            }
+
+            let po = reactive(object);
+
+            effect(() => {
+                console.log(po.a)       //30
+            })
+
+            po.a = 30;
+        </script>
+    </body>
+</html>

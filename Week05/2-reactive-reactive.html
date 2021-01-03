@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>reactive()基本代理的实现</title>
+    </head>
+    <body>
+        <script>
+            let object = {
+                a: 1,
+                b: 2
+            }
+
+            //一般对proxy的使用，会对对象做监听或改变其行为，所以一般的使用会把proxy的使用包进一个函数里；如下：
+            function reactive (object){
+                return new Proxy(object, {
+                    set(obj, prop, val){
+                        obj[prop] = val;
+                        console.log(obj, prop, val);
+                        return obj[prop];
+                    },
+
+                    get(obj, prop){
+                        console.log(obj, prop);
+                        return obj[prop];
+                    }
+                })
+            }
+
+            let po = reactive(object);
+            
+            //此时，可监听po的属性，但object并没有进行改变
+            po.a = 99;
+            po.x = 100;
+            console.log(object)
+        </script>
+    </body>
+</html>
