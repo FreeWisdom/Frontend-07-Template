@@ -1,6 +1,6 @@
-# 学习笔记
+# proxy与双向绑定、Range的DOM操作
 
-## proxy基本用法
+## 一、proxy基本用法
 * 代码应用proxy的特点：预期性变差，故而是为底层库专门设计的
 
 ```js
@@ -25,7 +25,8 @@ let po = new Proxy(object, {
 po.x = 9;       //此时调用了 set() console如下：{a: 1, b: 2} "x" 9
 ```
 
-## proxy模仿reactive实现原理————之reactive()函数基本代理的实现
+## 二、proxy模仿reactive实现原理
+### 1、reactive()函数基本代理的实现
 1. 首先完成对`po.a = 99;`等赋值属性的监听；
 ```html
 <script>
@@ -83,7 +84,7 @@ po.x = 9;       //此时调用了 set() console如下：{a: 1, b: 2} "x" 9
 ```
 3. 自此，基本完成了使用`po`代理`object`的行为(get/set)，若想要真正完全代理，则需要将proxy中所有的hook补全；
 
-## proxy模仿reactive实现原理————之利用effect(callback)代替事件监听机制
+### 2、利用effect(callback)代替事件监听机制
 1. vue3的reactive中有`effect`API进行事件监听。故实现`effect(callback)`函数，直接监听`po`上的属性，从而代替事件监听机制；
 ```html
 <script>
@@ -133,7 +134,7 @@ po.x = 9;       //此时调用了 set() console如下：{a: 1, b: 2} "x" 9
     - `callbacks[]`为全局变量，不同的对象每次执行监听都要调动(push)它；
     - 在`reactive()`中每次都要遍历所有的对象才可找到对应的callback；
 
-## proxy模仿reactive实现原理————之effect(callback)代替事件监听的优化
+### 3、effect(callback)代替事件监听的优化
 1. 接下来的优化，是在reactive和effect之间做个链接，要做到在`callbacks[]`中仅传一个callback，就能在只有对应变量变化的时候触发函数调用；
     1. 在js中，无法获取一个函数能够访问到的所有变量，并使用相应数据结构去表示它；
     2. vue中的实现：可以先调用这个函数，看他实际引用了哪些变量；
@@ -232,7 +233,7 @@ effect(() => {
 })
 ```
 
-## proxy模仿reactive实现原理————之解决object{}嵌套层监听失效的优化
+### 4、解决object{}嵌套层监听失效的优化
 * 将由于嵌套而产生的proxy，另外缓存到`reactivities{}`中，其它不变，具体顺序见：①——⑦
 ```html
 <script>
@@ -309,7 +310,7 @@ effect(() => {
 </script>
 ```
 
-## 基于proxy实现双向绑定的响应式对象————实现调色盘
+### 5、实现调色盘
 1. 基于以上的reactive的实现，进行DOM和数据双向绑定；
 2. 数据到DOM元素的单向绑定：当po.r改变的时候，相应id的input中的值也会跟着改变；
 3. DOM元素到数据的单向绑定：当input中数值改变的时候，相应id的po.r也会跟着改变；
@@ -394,7 +395,8 @@ effect(() => {
 </body>
 ```
 
-## 实现基本拖拽功能
+## 三、Range的DOM操作
+### 1、实现基本拖拽功能
 * 在`mousedown`事件中监听`mousemove`以及`mouseup`事件，实现基本的拖拽功能，代码及具体分析如下：
 ```html
 <body>
@@ -434,7 +436,7 @@ effect(() => {
 </body>
 ```
 
-## 在正常流里实现拖拽功能
+### 2、在正常流里实现拖拽功能
 * 理解Range：Range 对象表示文档中的连续范围。
     1. setStart:表示某个节点的range对象的起点位置;
     2. setEnd:表示某个节点的range对象的结束位置;
