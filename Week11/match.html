@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>match</title>
+</head>
+
+<body>
+    <div id="id1" class="class1">
+        <div id="id2" class="class2 class3">
+            <div id="id" class="class class4 class5 class6">编写一个match函数，接收两个参数，第一个参数是一个选择器字符串性质，第二个是一个HTML元素，判断当前的元素是否能够匹配到我们的选择器</div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function match(selector, element) {
+            let arr = selector.split(' '); // 获取element的层级
+            let parentArr = []; // 用于保存父节点
+            let reg = /(\w+)|(\.\w+)|(\#\w+)/g;
+            for (let i = 0; i < arr.length; i++) {
+                parentArr.push(arr[i].match(reg));
+            }
+
+            let matched = true;
+            // 从当前节点开始向上循环
+            for (let j = parentArr.length - 1; j >= 0; j--) {
+                if (!currentElementMatch(parentArr[j], element)) {
+                    matched = false;
+                    break;
+                }
+                element = element.parentNode;
+            }
+            return matched;
+        }
+
+        function currentElementMatch(curSelector, curElement) {
+            let hasId = false,
+                hasClass = false,
+                hasTag = false;
+            let idMatch = false,
+                classMatch = false,
+                tagMatch = false;
+            for (let i = 0; i < curSelector.length; i++) {
+                if (curSelector[i].charAt(0) === '#') {
+                    hasId = true;
+                    if (curElement.id === curSelector[i].replace('#', '')) {
+                        idMatch = true;
+                    }
+                } else if (curSelector[i].charAt(0) === '.') {
+                    hasClass = true;
+                    classMatch = false;
+                    for (let j = 0; j < curElement.classList.length; j++) {
+                        if (curElement.classList[j] === curSelector[i].replace('.', '')) {
+                            classMatch = true;
+                            break;
+                        }
+                    }
+                } else {
+                    hasTag = true;
+                    if (curElement.tagName.toLowerCase() === curSelector[i]) {
+                        tagMatch = true;
+                    }
+                }
+            }
+            return ((hasId && idMatch) || !hasId) && ((hasClass && classMatch) || !hasClass) && ((hasTag && tagMatch) || !hasTag);
+        }
+
+        console.log(match("div #id.class", document.getElementById("id")));
+        console.log(match("div #id .class", document.getElementById("id")));
+    </script>
+</body>
+
+</html>
