@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cubic bezier demo</title>
+    <style>
+        .ball {
+            width: 10px;
+            height: 10px;
+            background-color: black;
+            border-radius: 5px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transform: translateY(180px);
+        }
+    </style>
+    <script>
+        function generateCubicBezier(v, g, t) {
+            let a = v / g;
+            let b = t + v / g;
+
+            return [
+                [
+                    (a / 3 + (a + b) / 3 - a) / (b - a),
+                    (a * a / 3 + a * b * 2 / 3 - a * a) / (b * b - a * a)
+                ],
+                [
+                    (b / 3 + (a + b) / 3 - a) / (b - a),
+                    (b * b / 3 + a * b * 2 / 3 - a * a) / (b * b - a * a)
+                ]
+            ];
+        }
+
+        function createBall() {
+            let ball = document.createElement('div');
+            let t = Number(document.getElementById('t').value);
+            let vx = Number(document.getElementById('vx').value);
+            let vy = Number(document.getElementById('vy').value);
+            let g = Number(document.getElementById('g').value);
+
+            ball.className = 'ball';
+
+            document.body.appendChild(ball);
+
+            ball.style.transition = `left linear ${t}s, top cubic-bezier(${generateCubicBezier(vy, g, t)}) ${t}s`;
+
+            setTimeout(function () {
+                // 匀速直线运动
+                ball.style.left = `${t * vx}px`;
+                // 重力加速度公式
+                ball.style.top = `${vy * t + 0.5 * g * t * t}px`;
+            }, 100);
+        }
+
+        function delay(ms = 200) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    resolve();
+                }, ms)
+            })
+        }
+
+        async function createBalls() {
+            let num = 100;
+            while (num > 0) {
+                createBall();
+                num--
+                await delay();
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        运动时间：<input id="t" value="15" /> s
+    </div>
+    <div>
+        垂直速度：<input id="vy" value="-33" /> px/s
+    </div>
+    <div>
+        水平速度：<input id="vx" value="33" /> px/s
+    </div>
+    <div>
+        重力：<input id="g" value="10" /> px/s2
+    </div>
+    <button onclick="createBalls()">来一堆球</button>
+
+</body>
+
+</html>

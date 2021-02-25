@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>正常流的行级排布</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            .wrapper {
+                margin: 2rem;
+                font-size: 50px;
+                line-height: 100px;
+                background-color: #ff00ff;
+            }
+            .base-line {
+                /* vertical-align: middle; */
+                overflow: visible;
+                display: inline-block;
+                width: 100px;
+                height: 2px;
+                background-color: #000000;
+            }
+            .base-line-1 {
+                vertical-align: middle;
+                overflow: visible;
+                display: inline-block;
+                width: 100px;
+                height: 2px;
+                background-color: #000000;
+            }
+            .base-line-2 {
+                vertical-align: top;
+                overflow: visible;
+                display: inline-block;
+                width: 100px;
+                height: 2px;
+                background-color: #000000;
+            }
+            .base-line-3 {
+                vertical-align: bottom;
+                overflow: visible;
+                display: inline-block;
+                width: 100px;
+                height: 2px;
+                background-color: #000000;
+            }
+            .base-line div {
+                width: 1000px;
+                height: 1px;
+                background: rgb(183, 253, 255);
+            }
+            .base-line-1 div {
+                width: 1000px;
+                height: 1px;
+                background: rgb(183, 253, 255);
+            }
+            .base-line-2 div {
+                width: 1000px;
+                height: 1px;
+                background: rgb(183, 253, 255);
+            }
+            .base-line-3 div {
+                width: 1000px;
+                height: 1px;
+                background: rgb(183, 253, 255);
+            }
+            .text {
+                color: #ddd;
+            }
+            .inline-box {
+                line-height: 70px;
+                width: 100px;
+                height: 150px;
+                background-color: aqua;
+                display: inline-block;
+            }
+            .inline-box1 {
+                vertical-align: top;
+                line-height: 70px;
+                width: 100px;
+                height: 150px;
+                background-color: aqua;
+                display: inline-block;
+            }
+            .inline-box2 {
+                vertical-align: middle;
+                line-height: 70px;
+                width: 100px;
+                height: 150px;
+                background-color: aqua;
+                display: inline-block;
+            }
+            .inline-box3 {
+                vertical-align: bottom;
+                line-height: 70px;
+                width: 100px;
+                height: 150px;
+                background-color: aqua;
+                display: inline-block;
+            }
+            .inline-boxA {
+                vertical-align: text-bottom;
+                line-height: 70px;
+                width: 100px;
+                height: 150px;
+                background-color: aqua;
+                display: inline-block;
+            }
+            .inline-boxB {
+                vertical-align: text-top;
+                line-height: 70px;
+                width: 100px;
+                height: 150px;
+                background-color: aqua;
+                display: inline-block;
+            }
+        </style>
+    </head>
+    <body>
+        <p>~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box"></div> <!-- 行级盒 -->
+        </div>
+
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box">b</div> <!-- 行级盒 -->
+        </div>
+
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p>top~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box1">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p>middle~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box2">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p>bottom~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box3">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p> text-bottom~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-boxA">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p> text-top~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-boxB">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p> middle线~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line-1"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box3">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p> top线~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line-2"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-box3">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p> bottom线~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line-3"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-boxA">b<br>c</div> <!-- 行级盒 -->
+            <div class="inline-boxB">b<br>c</div> <!-- 行级盒 -->
+        </div>
+
+        <p> 最高行~~~~~~~~~~~~~~~~~~~~~~~</p>
+        <div class="wrapper"> <!-- 外包框 -->
+            <div class="base-line"> <!-- 对齐基线 -->
+                <div></div>
+            </div>
+            <span class="text">Hello world 中文</span> <!-- 文字内容 -->
+            <div class="inline-boxA">b<br>c</div> <!-- 行级盒 -->
+            <div class="inline-boxB">b<br>c</div> <!-- 行级盒 -->
+        </div>
+    </body>
+</html>
