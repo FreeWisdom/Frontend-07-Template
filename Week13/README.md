@@ -6,31 +6,31 @@
 * &lt 是小于号
 * &gt 是大于号
 ## 2、HTML标签语义
-* <main></main> 放的主要部分 表示一个
-* <hgroup></hgroup> 标题组
-* <abbr></abbr> 表示缩写、简写 有title属性
-* <strong></strong> 表示重点 文章的重点
-* <em></em> 表示强调 语气上
-* <figure></figure> 用作文档中插图的图像
-* <figcaption></figcaption> 元素为 figure 添加标题
+* `<main></main>` 放的主要部分 表示一个
+* `<hgroup></hgroup>` 标题组
+* `<abbr></abbr>` 表示缩写、简写 有title属性
+* `<strong></strong>` 表示重点 文章的重点
+* `<em></em>` 表示强调 语气上
+* `<figure></figure>` 用作文档中插图的图像
+* `<figcaption></figcaption>` 元素为 figure 添加标题
     ```html
     <figure>
         <figcaption>黄浦江上的的卢浦大桥</figcaption>
-        <img src="shanghai_lupu_bridge.jpg" width="350" height="234" />
+        <img src="xxx.jpg"/>
     </figure>
     ```
-* <nav></nav> nav 标签定义导航链接的部分。
-* <dfn></dfn> dfn表示定义当前的词
-* <samp></samp> 表示例子
-* <pre></pre> 表示预格式化的文本,常见应用就是用来表示计算机的源代码。
-* <code></code> 代码
+* `<nav></nav>` nav 标签定义导航链接的部分。
+* `<dfn></dfn>` dfn表示定义当前的词
+* `<samp></samp>` 表示例子
+* `<pre></pre>` 表示预格式化的文本,常见应用就是用来表示计算机的源代码。
+* `<code></code>` 代码
 ## 3、HTML中的几种语法
-* Element: <tagname>...</tagname>
-* Text: text
-* Comment: <!--comments -->
-* DocumentType: <!Doctype html>
-* ProcessingInstruction: <?a 1?>
-* CDATA: <![CDATA[ ]]>
+* Element: `<tagname>...</tagname>`
+* Text: `text`
+* Comment: `<!--comments -->`
+* DocumentType: `<!Doctype html>`
+* ProcessingInstruction: `<?a 1?>`
+* CDATA: `<![CDATA[ ]]>`
 
 # 二、浏览器API
 ## 1、浏览器 API 的分类：
@@ -53,7 +53,9 @@
         - CG/WG
 ## 2、DOM API——节点
 DOM 的树形结构所有的节点有统一的接口 Node，DOM (Document Object Model，文档对象模型)，是 HTML 文档节点的 javascript 运行时模型。
-![DOM 树中节点类型的继承关系](https://github.com/FreeWisdom/Frontend-07-Template/blob/main/Week13/img/node-api.png.png "DOM 树中节点类型的继承关系")
+
+![DOM 树中节点类型的继承关系](https://raw.githubusercontent.com/FreeWisdom/Frontend-07-Template/main/Week13/img/node-api.png "DOM 树中节点类型的继承关系")
+
 在这些节点中，除了 Document 和 DocumentFrangment，都有与之对应的 HTML 写法，我们可以看一下。
 ```html
 Element: <tagname>...</tagname>
@@ -62,7 +64,9 @@ DocumentType: <!Doctype html>
 ProcessingInstruction: <?a 1?>
 ```
 我们在编写 HTML 代码并且运行后，就会在内存中得到这样一棵 DOM 树，HTML 的写法会被转化成对应的文档模型，而我们则可以通过 JavaScript 等语言去访问这个文档模型。这里我们每天都需要用到，**要重点掌握的是：Document、Element、Text 节点**。
+
 DocumentFragment 也非常有用，它常常被用来高性能地批量添加节点。
+
 因为 Comment、DocumentType 和 ProcessingInstruction 很少需要运行时去修改和操作，所以有所了解即可。
 1. 节点的导航操作
     Node 是 DOM 树继承关系的根节点，它定义了 DOM 节点在 DOM 树上的操作，首先，Node 提供了一组属性，来表示它在 DOM 树中的父、子、邻居关系关系，它们是：
@@ -343,13 +347,13 @@ CSSOM 是 CSS 的对象模型，在 W3C 标准中，它包含两个部分：
     - 第二个参数是可选的，用于选择伪元素。
 ### 4-2 CSSOM View
 CSSOM View 这一部分的 API，可以视为 DOM API 的扩展，它在原本的 Element 接口上，添加了显示相关的功能，这些功能，又可以分成三个部分：
-1. 窗口部分:窗口 API窗口 API 用于操作浏览器窗口的位置、尺寸等。
+1. **窗口部分:**窗口 API窗口 API 用于操作浏览器窗口的位置、尺寸等。
     - moveTo(x, y) 窗口移动到屏幕的特定坐标；
     - moveBy(x, y) 窗口移动特定距离；
     - resizeTo(x, y) 改变窗口大小到特定尺寸；
     - resizeBy(x, y) 改变窗口大小特定尺寸。
-2. 滚动部分:要想理解滚动，首先我们必须要建立一个概念，在 PC 时代，浏览器可视区域的滚动和内部元素的滚动关系是比较模糊的，但是在移动端越来越重要的今天，两者必须分开看待，两者的性能和行为都有区别。
-    - 视口滚动 API:可视区域（视口）滚动行为由 window 对象上的一组 API 控制
+2. **滚动部分:**要想理解滚动，首先我们必须要建立一个概念，在 PC 时代，浏览器可视区域的滚动和内部元素的滚动关系是比较模糊的，但是在移动端越来越重要的今天，两者必须分开看待，两者的性能和行为都有区别。
+    - **视口滚动 API:**可视区域（视口）滚动行为由 window 对象上的一组 API 控制
         - scrollX 是视口的属性，表示 X 方向上的当前滚动距离，有别名 pageXOffset；
         - scrollY 是视口的属性，表示 Y 方向上的当前滚动距离，有别名 pageYOffset；
         - scroll(x, y) 使得页面滚动到特定的位置，有别名 scrollTo，支持传入配置型参数 {top, left}；
@@ -361,7 +365,7 @@ CSSOM View 这一部分的 API，可以视为 DOM API 的扩展，它在原本�
         document.addEventListener("scroll", function(event){ //......})
         ```
         视口滚动 API 是页面的顶层容器的滚动，大部分移动端浏览器都会采用一些性能优化，它和元素滚动不完全一样，请大家一定建立这个区分的意识。
-    - 元素滚动 API：
+    - **元素滚动 API**
         - scrollTop 表示 Y 方向上的当前滚动距离；
         - scrollLeft 表示 X 方向上的当前滚动距离；
         - scrollWidth 表示元素内部的滚动内容的宽度，一般来说会大于等于元素宽度；
@@ -375,8 +379,8 @@ CSSOM View 这一部分的 API，可以视为 DOM API 的扩展，它在原本�
         //......
         })
         ```
-3. 布局部分:这是整个 CSSOM 中最常用到的部分，我们同样要分成全局 API 和元素上的 API。
-    - 全局尺寸信息:window 对象上提供了一些全局的尺寸信息，它是通过属性来提供的
+3. **布局部分:**这是整个 CSSOM 中最常用到的部分，我们同样要分成全局 API 和元素上的 API。
+    - **全局尺寸信息:**window 对象上提供了一些全局的尺寸信息，它是通过属性来提供的
         - **window.innerHeight, window.innerWidth 这两个属性表示视口的大小;**
         - window.outerWidth, window.outerHeight 这两个属性表示浏览器窗口占据的大小，很多浏览器没有实现，一般来说这两个属性无关紧要;
         - **window.devicePixelRatio 这个属性非常重要，表示物理像素和 CSS 像素单位的倍率关系，Retina 屏这个值是 2，后来也出现了一些 3 倍的 Android 屏;**
@@ -384,7 +388,7 @@ CSSOM View 这一部分的 API，可以视为 DOM API 的扩展，它在原本�
         - window.screen.availWidth, window.screen.availHeight 设备屏幕的可渲染区域尺寸，一些 Android 机器会把屏幕的一部分预留做固定按钮，所以有这两个属性，实际上一般浏览器不会实现的这么细致;
         - window.screen.colorDepth, window.screen.pixelDepth 这两个属性是固定值 24，应该是为了以后预留;
         虽然 window 有这么多相关信息，在我看来，我们主要使用的是 innerHeight、innerWidth 和 devicePixelRatio 三个属性，因为我们前端开发工作只需要跟视口打交道，其它信息大概了解即可。
-    - 元素的布局信息:我们是否能够取到一个元素的宽（width）和高（height）呢？实际上，我们首先应该从脑中消除“元素有宽高”这样的概念，有些元素可能产生多个盒，事实上，***只有盒有宽和高，元素是没有的***。所以我们获取宽高的对象应该是“盒”，于是 CSSOM View 为 Element 类添加了两个方法：
+    - **元素的布局信息:**我们是否能够取到一个元素的宽（width）和高（height）呢？实际上，我们首先应该从脑中消除“元素有宽高”这样的概念，有些元素可能产生多个盒，事实上，***只有盒有宽和高，元素是没有的***。所以我们获取宽高的对象应该是“盒”，于是 CSSOM View 为 Element 类添加了两个方法：
         - getClientRects()
             - getClientRects 会返回一个列表，里面包含元素对应的每一个盒所占据的客户端矩形区域，这里每一个矩形区域可以用 x, y, width, height 来获取它的位置和尺寸。
         - getBoundingClientRect()
