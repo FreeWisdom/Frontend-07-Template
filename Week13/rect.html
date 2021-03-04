@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .x::before {
+            content: "额外 额外 额外 额外 额外 ";
+            background-color: pink;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width: 100px; height: 400px; overflow: scroll;">
+        文字 <span class="x" style="background-color: lightblue;">文字 文字 文字 文字 文字 文字 文字</span>
+    </div>
+
+    <script>
+        let x = document.getElementsByClassName('x')[0];
+        // 伪元素 和 span 换行时会生成多个盒
+    </script>
+</body>
+
+</html>

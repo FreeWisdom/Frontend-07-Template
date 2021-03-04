@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>range 的使用</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div id="a">123<span style="background-color: pink;">456789</span>0123456789</div>
+
+        <script>
+            let range = new Range();
+
+            range.setStart(document.getElementById("a").childNodes[0], 3);
+            range.setEnd(document.getElementById("a").childNodes[2], 4);
+            
+            range.extractContents();
+        </script>
+    </body>
+</html>

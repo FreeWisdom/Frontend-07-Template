@@ -2,6 +2,7 @@
 ## 一、浏览器总论
     我们从URL访问一个网页，经过浏览器的解析和渲染后成为了Bitmap（Bitmap（位图）：在浏览器看到的页面都是一个图片形式叫做位图，然后经过显卡转换为我们可以识别的光信号。），这是一个浏览器的渲染流程。下面，会实现一个简单的基础流程，但是真正的浏览器还包含了很多功能，比如历史等等，而我们完成的是从 URL 请求到 Bitmap 页面展示的流程。
 <img src="https://github.com/FreeWisdom/Frontend-07-Template/tree/main/Week08/img/browserRenderingProcess.png">
+<img src="https://github.com/FreeWisdom/Frontend-07-Template/blob/main/Week08/img/browserRenderingProcess.png">
 
 * 浏览器渲染流程：
 1. URL 部分：经过 HTTP 请求，然后解析HTTP回应内容，然后提取文本的 HTML；

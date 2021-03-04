@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>DOM的子元素逆序</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <!--
+            考点一：DOM的集是living状态
+                - 最后一个元素挪走，不会影响之前的元素，可以直接在living collection上操作，不用再使用数组；
+            考点二：元素的子元素insert时候不需要先从原来的位置挪走，子元素进行insert操作时若已经在DOM树上，底层会先将其remove下来，再append到新的树上；
+        -->
+        <div id="a">
+            <p>1</p>
+            <h>2</h>
+            <p>3</p>
+            <div>4</div>
+        </div>
+        <script>
+            let element = document.getElementById("a");
+
+            /**
+             * 方法一：使用数组
+             * 缺点：代码冗余、效率低
+             * **/
+            function reverseChildren1(element) {
+                let children = Array.prototype.slice.call(element.childNodes);
+                
+                element.innerHTML = "";
+
+                // for (const child of children) {
+                //     element.removeChild(child)
+                // }
+
+                children.reverse();
+
+                for (const child of children) {
+                    element.appendChild(child);
+                }
+            }
+
+            /**
+             * 方法二：直接living collection上操作
+             * 
+             * **/
+            function reverseChildren2(element) {
+                var l = element.childNodes.length;
+                while(l -- > 0) {
+                    element.appendChild(element.childNodes[l])
+                }
+            }
+
+            /**
+             * 终极方法
+             * 方法三：使用fragment减少树的DOM操作
+             * **/
+            function reverseChildren3(element) {
+                let range = new Range();
+                range.selectNodeContents(element);
+                let fragment = range.extractContents();
+                var l = fragment.childNodes.length;
+                while(l -- > 0) {
+                    fragment.appendChild(fragment.childNodes[l]);
+                }
+                element.appendChild(fragment);
+            }
+
+            reverseChildren3(element)
+        </script>
+    </body>
+</html>
