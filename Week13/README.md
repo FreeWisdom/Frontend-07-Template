@@ -52,24 +52,30 @@
         - webaudio
         - CG/WG
 ## 2、DOM API——节点
+
 DOM 的树形结构所有的节点有统一的接口 Node，DOM (Document Object Model，文档对象模型)，是 HTML 文档节点的 javascript 运行时模型。
 
 ![DOM 树中节点类型的继承关系](https://raw.githubusercontent.com/FreeWisdom/Frontend-07-Template/main/Week13/img/node-api.png "DOM 树中节点类型的继承关系")
 
 在这些节点中，除了 Document 和 DocumentFrangment，都有与之对应的 HTML 写法，我们可以看一下。
+
 ```html
 Element: <tagname>...</tagname>
 Text: textComment: <!-- comments -->
 DocumentType: <!Doctype html>
 ProcessingInstruction: <?a 1?>
 ```
+
 我们在编写 HTML 代码并且运行后，就会在内存中得到这样一棵 DOM 树，HTML 的写法会被转化成对应的文档模型，而我们则可以通过 JavaScript 等语言去访问这个文档模型。这里我们每天都需要用到，**要重点掌握的是：Document、Element、Text 节点**。
 
 DocumentFragment 也非常有用，它常常被用来高性能地批量添加节点。
 
 因为 Comment、DocumentType 和 ProcessingInstruction 很少需要运行时去修改和操作，所以有所了解即可。
+
 1. 节点的导航操作
+
     Node 是 DOM 树继承关系的根节点，它定义了 DOM 节点在 DOM 树上的操作，首先，Node 提供了一组属性，来表示它在 DOM 树中的父、子、邻居关系关系，它们是：
+
     - parentNode
     - childNodes
     - firstChild
@@ -77,13 +83,17 @@ DocumentFragment 也非常有用，它常常被用来高性能地批量添加节
     - nextSibling
     - previousSibling
 2. 操作 DOM 树的节点
+
     所有这几个修改型的 API，全都是在父元素上操作的，比如我们要想实现“删除一个元素的上一个元素”，必须要先用 parentNode 获取其父元素。这样的设计是符合面向对象的基本原则的。“拥有哪些子元素”是父元素的一种状态，所以修改状态，应该是父元素的行为。这个设计我认为是 DOM API 中好的部分。
+
     - appendChild：向元素添加新的子节点，作为最后一个子节点。
     - insertBefore：在指定的已有的子节点之前插入新节点。
     - removeChild：从元素中移除子节点。
     - replaceChild：替换元素中的子节点。
 3. 创建节点
-    DOM 标准规定了节点必须从文档的 create 方法创建出来，不能够使用原生的 JavaScript 的 new 运算。于是 document 对象有这些方法：                    
+
+    DOM 标准规定了节点必须从文档的 create 方法创建出来，不能够使用原生的 JavaScript 的 new 运算。于是 document 对象有这些方法：
+
     - createElement
     - createTextNode
     - createCDATASection
@@ -103,20 +113,28 @@ DocumentFragment 也非常有用，它常常被用来高性能地批量添加节
     - setAttribute
     - removeAttribute
     - hasAttribute
+    
     还可以把 Attribute 当作节点：
+    
     - getAttributeNode
     - setAttributeNode
+    
     还可以使用 attributes 对象
+    
     - 比如 document.body.attributes.class = “a” === document.body.setAttribute(“class”, “a”)。
 6. 查找元素
+
     document 节点提供了查找元素的能力。比如有下面的几种：
+
     - querySelector
     - querySelectorAll
     - getElementById
     - getElementsByName
     - getElementsByTagName
     - getElementsByClassName
+    
     我们需要注意，getElementById、getElementsByName、getElementsByTagName、getElementsByClassName，这几个 API 的性能高于 querySelector。而 getElementsByName、getElementsByTagName、getElementsByClassName 获取的集合并非数组，而是一个能够动态更新的集合。
+
 ## 3、DOM API——事件
 1. 监听事件
     - 监听事件的 API：EventTarget.addEventListener()
@@ -214,9 +232,13 @@ DocumentFragment 也非常有用，它常常被用来高性能地批量添加节
     </html>
     ```
 ## 4、DOM API——Range
+
 Range API 是一个比较专业的领域，如果不做富文本编辑类的业务，不需要太深入。
+
 Range API 表示一个 HTML 上的范围，这个范围是以文字为最小单位的，所以 Range 不一定包含完整的节点，它可能是 Text 节点中的一段，也可以是头尾两个 Text 的一部分加上中间的元素。
+
 通过 Range API 可以比节点 API 更精确地操作 DOM 树，凡是 节点 API 能做到的，Range API 都可以做到，而且可以做到更高性能，但是 Range API 使用起来比较麻烦，所以在实际项目中，并不常用，只有做底层框架和富文本编辑对它有强需求。
+
 1. Range 选择范围的一些方法
     - range.setStartBefore
     - range.setEndBefore
@@ -317,9 +339,11 @@ Range API 表示一个 HTML 上的范围，这个范围是以文字为最小单�
     </html>
     ```
 ## 4、CSSOM
+
 正如 HTML 和 CSS 分别承担了语义和表现的分工，DOM 和 CSSOM 也有语义和表现的分工。
 
 CSSOM 是 CSS 的对象模型，在 W3C 标准中，它包含两个部分：
+
 - 描述样式表和规则等 CSS 的模型部分（CSSOM）；
 - 跟元素视图相关的 View 部分（CSSOM View）；
 ### 4-1 CSSOM 的本体
@@ -358,9 +382,13 @@ CSSOM View 这一部分的 API，可以视为 DOM API 的扩展，它在原本�
         - scrollY 是视口的属性，表示 Y 方向上的当前滚动距离，有别名 pageYOffset；
         - scroll(x, y) 使得页面滚动到特定的位置，有别名 scrollTo，支持传入配置型参数 {top, left}；
         - scrollBy(x, y) 使得页面滚动特定的距离，支持传入配置型参数 {top, left}。
+        
         通过这些属性和方法，我们可以读取视口的滚动位置和操纵视口滚动。
+
         示例：https://www.nhooo.com/run/js_win_scrollX_scrollY.html
+
         不过，要想监听视口滚动事件，我们需要在 document 对象上绑定事件监听函数：
+        
         ```js
         document.addEventListener("scroll", function(event){ //......})
         ```
@@ -373,22 +401,24 @@ CSSOM View 这一部分的 API，可以视为 DOM API 的扩展，它在原本�
         - scroll(x, y) 使得元素滚动到特定的位置，有别名 scrollTo，支持传入配置型参数 {top, left}；
         - scrollBy(x, y) 使得元素滚动到特定的位置，支持传入配置型参数 {top, left}；
         - scrollIntoView(arg) 滚动元素所在的父元素，使得元素滚动到可见区域，可以通过 arg 来指定滚到中间、开始或者就近。
+        
         除此之外，可滚动的元素也支持 scroll 事件，我们在元素上监听它的事件即可：
         ```js
         element.addEventListener("scroll", function(event){
         //......
         })
         ```
-3. **布局部分:**这是整个 CSSOM 中最常用到的部分，我们同样要分成全局 API 和元素上的 API。
-    - **全局尺寸信息:**window 对象上提供了一些全局的尺寸信息，它是通过属性来提供的
+3. ***布局部分***:这是整个 CSSOM 中最常用到的部分，我们同样要分成全局 API 和元素上的 API。
+    - ***全局尺寸信息***:window 对象上提供了一些全局的尺寸信息，它是通过属性来提供的
         - **window.innerHeight, window.innerWidth 这两个属性表示视口的大小;**
         - window.outerWidth, window.outerHeight 这两个属性表示浏览器窗口占据的大小，很多浏览器没有实现，一般来说这两个属性无关紧要;
         - **window.devicePixelRatio 这个属性非常重要，表示物理像素和 CSS 像素单位的倍率关系，Retina 屏这个值是 2，后来也出现了一些 3 倍的 Android 屏;**
         - window.screen （屏幕尺寸相关的信息）window.screen.width, window.screen.height 设备的屏幕尺寸;
         - window.screen.availWidth, window.screen.availHeight 设备屏幕的可渲染区域尺寸，一些 Android 机器会把屏幕的一部分预留做固定按钮，所以有这两个属性，实际上一般浏览器不会实现的这么细致;
         - window.screen.colorDepth, window.screen.pixelDepth 这两个属性是固定值 24，应该是为了以后预留;
+        
         虽然 window 有这么多相关信息，在我看来，我们主要使用的是 innerHeight、innerWidth 和 devicePixelRatio 三个属性，因为我们前端开发工作只需要跟视口打交道，其它信息大概了解即可。
-    - **元素的布局信息:**我们是否能够取到一个元素的宽（width）和高（height）呢？实际上，我们首先应该从脑中消除“元素有宽高”这样的概念，有些元素可能产生多个盒，事实上，***只有盒有宽和高，元素是没有的***。所以我们获取宽高的对象应该是“盒”，于是 CSSOM View 为 Element 类添加了两个方法：
+    - 元素的布局信息:我们是否能够取到一个元素的宽（width）和高（height）呢？实际上，我们首先应该从脑中消除“元素有宽高”这样的概念，有些元素可能产生多个盒，事实上，***只有盒有宽和高，元素是没有的***。所以我们获取宽高的对象应该是“盒”，于是 CSSOM View 为 Element 类添加了两个方法：
         - getClientRects()
             - getClientRects 会返回一个列表，里面包含元素对应的每一个盒所占据的客户端矩形区域，这里每一个矩形区域可以用 x, y, width, height 来获取它的位置和尺寸。
         - getBoundingClientRect()
