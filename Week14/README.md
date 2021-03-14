@@ -1,4 +1,5 @@
 # 组件化
+<<<<<<< HEAD
 ## 1、组件的基本知识
 * 前端架构中最热门的就有两个话题：
     1. 组件化；
@@ -1066,3 +1067,6 @@ export function createElement(type, attributes, ...children) {
     ```
     4. 
 ## 6、为组件添加更多属性
+=======
+## 
+>>>>>>> 7a0a1e0eec51ad5125411cfbf492ab9fb06e787c
