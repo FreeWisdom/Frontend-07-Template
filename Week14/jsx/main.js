@@ -62,9 +62,9 @@ class Carousel extends Component{
                 for (const offset of [0, -Math.sign(Math.round(moveX / 614) - moveX + 307 * Math.sign(moveX))]) {
                     let pictureIndex = position + offset;
                     pictureIndex = (pictureIndex + children.length) % children.length;
-                    if (offset === 0) {
-                        position = pictureIndex;
-                    }
+                    // if (offset === 0) {
+                    //     position = pictureIndex;
+                    // }
                     children[pictureIndex].style.transition = "";
                     children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614}px)`;
                 }

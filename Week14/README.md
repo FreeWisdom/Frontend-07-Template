@@ -1065,4 +1065,56 @@ export function createElement(type, attributes, ...children) {
     })
     ```
     4. 最终实现拖拽
-## 6、为组件添加更多属性
+    ```js
+    let position = 0;
+        this.root.addEventListener("mousedown", (event) => {
+        let children = this.root.children;
+        //记录鼠标起始x坐标
+        let startX = event.clientX;
+        let mouseMove = event => {
+            //鼠标x坐标移动的距离
+            let moveX = event.clientX - startX;
+            let clientWidth = event.target.clientWidth
+            //***与相同的*对应可解开注释***当前是第几个
+            let current = position - ((moveX - moveX % clientWidth) / clientWidth);
+            // let current = position - Math.round(moveX / clientWidth);
+            //当前这个及其前后，3张图的便利，然后分别做动画
+            for (const offset of [-1, 0, 1]) {
+                //分别为
+                let pictureIndex = current + offset;
+                pictureIndex = (pictureIndex + children.length) % children.length;
+                //为了使 dom 跟随鼠标移动符合人的直觉，鼠标摁下选中图片时关闭过渡动画效果，完成接下来的图片跟随鼠标移动；
+                children[pictureIndex].style.transition = "none";
+                //移动当前 child 的 DOM 元素；
+                //注：由于是操作改变的css属性，故当前的移动不以上一次的移动为前体条件，依然是以初次图片的位置为前提条件；
+                //***与相同的*对应可解开注释***
+                // children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614}px)`;
+                children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614 + moveX % 614}px)`;
+            }
+        };
+        
+        let mouseUp = event => {
+            let moveX = event.clientX - startX;
+            //定位移动到第几张图片
+            position = position - Math.round(moveX / event.target.clientWidth);
+            
+            for (const offset of [0, -Math.sign(Math.round(moveX / 614) - moveX + 307 * Math.sign(moveX))]) {
+                let pictureIndex = position + offset;
+                pictureIndex = (pictureIndex + children.length) % children.length;
+                children[pictureIndex].style.transition = "";
+                children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614}px)`;
+            }
+
+            document.removeEventListener("mousemove", mouseMove);
+            document.removeEventListener("mouseup", mouseUp);
+        }
+
+        document.addEventListener("mousemove", mouseMove);
+        document.addEventListener("mouseup", mouseUp);
+    })
+    ```
+
+## 6、抽象开发组件需要的能力
+
+> 见下周 
+
