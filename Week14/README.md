@@ -1116,5 +1116,5 @@ export function createElement(type, attributes, ...children) {
 
 ## 6、抽象开发组件需要的能力
 
-> 见下周 
+> 见接下来文章
 
