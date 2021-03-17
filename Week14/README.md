@@ -768,9 +768,8 @@ JSX 在大家一般认知里面，它是属于 React 的一部分。其实 Faceb
 
     ![自定义 jsx 中createElement() 函数返回 DOM ](https://raw.githubusercontent.com/FreeWisdom/Frontend-07-Template/main/Week14/img/calssDom.png "自定义 jsx 中createElement() 函数返回 DOM ")
 
-## 4、实现轮播组件
-### 4.1、底层封装
-#### 4.1.1、将识别 jsx 语法的功能封装到底层 frameWork.js 中
+## 3、实现轮播组件底层封装
+### 3.1、将识别 jsx 语法的功能封装到底层 frameWork.js 中
 1. 根目录建立 framework.js 把 createElement、 ElementWrapper、TextWrapper 这三个移到 framework.js 文件中；
 2. createElement 方法是需要 export 出去让 main.js 可以引入;
 3. ElementWrapper、TextWrapper 不需要 export ，因为它们都属于内部给 createElement 使用;
@@ -835,7 +834,7 @@ export function createElement(type, attributes, ...children) {
     return element;
 }
 ```
-#### 4.1.2、顶层的 main.js 中只保留实际封装的 Carousel 功能
+### 3.2、顶层的 main.js 中只保留实际封装的 Carousel 功能
 1. 如果每次都需要手动 webpack 打包一下，就特别麻烦，为了方便调试代码，这里安装了 webpack dev server 来解决这个问题；根目录下，执行：
     ```
     npm install --save-dev webpack-dev-server webpack-cli
@@ -902,9 +901,10 @@ export function createElement(type, attributes, ...children) {
 
     ![猫猫图](https://raw.githubusercontent.com/FreeWisdom/Frontend-07-Template/main/Week14/img/maomaotu.png "猫猫图")
 
-## 5、轮播动画
-### 5.1、图片排版
-1. 由于图片的元素都是 img 标签，使用这个标签，点击并且拖动的时候，它自带可以被拖拽。把 img 换成 div，然后使用 background-image，解决这个默认拖动问题。为组件中的内容添加 class 属性，在 HTML 中加入 css 样式控制；如下：
+## 4、轮播动画
+### 4.1、图片排版
+
+由于图片的元素都是 img 标签，使用这个标签，点击并且拖动的时候，它自带可以被拖拽。把 img 换成 div，然后使用 background-image，解决这个默认拖动问题。为组件中的内容添加 class 属性，在 HTML 中加入 css 样式控制；如下：
 
     > main.html 修改为：
 
@@ -962,7 +962,8 @@ export function createElement(type, attributes, ...children) {
 
     ![猫猫图](https://raw.githubusercontent.com/FreeWisdom/Frontend-07-Template/main/Week14/img/photo-inline.png "猫猫图")
 
-2. main.js 中的 render 函数增加轮播逻辑，实现自动轮播
+### 4.2、main.js 中的 render 函数增加轮播逻辑，实现自动轮播
+    
     ```js
     render() {
         this.root = document.createElement("div");
@@ -1006,115 +1007,115 @@ export function createElement(type, attributes, ...children) {
     }
     ```
 
-3. 实现拖拽
-    1. 为了使自动轮播功能不影响到拖拽，故先将上述 main.js>render() 中的 setInterval 注释掉；
-    2. main.js>render() 中，在 `this.root` 上监听 mousedown 事件，在 mousedown 事件中同时监听 mousemove/mouseup 事件，并且在 mouseup 中删除 mousemove/mousedown 事件，**形成任何拖拽场景下的基础代码**如下：
+### 4.3、 实现拖拽
+1. 为了使自动轮播功能不影响到拖拽，故先将上述 main.js>render() 中的 setInterval 注释掉；
+2. main.js>render() 中，在 `this.root` 上监听 mousedown 事件，在 mousedown 事件中同时监听 mousemove/mouseup 事件，并且在 mouseup 中删除 mousemove/mousedown 事件，**形成任何拖拽场景下的基础代码**如下：
 
-    ```js
-    this.root.addEventListener("mousedown", () => {
-        console.log("mousedown")
+```js
+this.root.addEventListener("mousedown", () => {
+    console.log("mousedown")
 
-        let mouseMove = event => {
-            console.log("mousemove")
-        };
-        let mouseUp = event => {
-            document.removeEventListener("mousemove", mouseMove);
-            document.removeEventListener("mouseup", mouseUp);
-            console.log("mouseUp")
+    let mouseMove = event => {
+        console.log("mousemove")
+    };
+    let mouseUp = event => {
+        document.removeEventListener("mousemove", mouseMove);
+        document.removeEventListener("mouseup", mouseUp);
+        console.log("mouseUp")
+    }
+    
+    //mousedown 已经是在 root 上监听， mousemove/mouseup 没有必要在 root 上监听。所以可以在 document 上直接监听这两个事件。在现代浏览器当中，使用 document 监听有额外好处：即使鼠标移出浏览器窗口外，一样可以监听到事件。
+    document.addEventListener("mousemove", mouseMove);
+    document.addEventListener("mouseup", mouseUp);
+})
+```
+3. 在 this.root.addEventListener("mousedown", (event) => {}) 中实现拖拽切换图片
+```js
+let position = 0;
+this.root.addEventListener("mousedown", (event) => {
+    //记录鼠标起始x坐标
+    let startX = event.clientX;
+    let mouseMove = event => {
+        //鼠标x坐标移动的距离
+        let moveX = event.clientX - startX;
+        for (const child of this.root.children) {
+            //为了使 dom 跟随鼠标移动符合人的直觉，鼠标摁下选中图片时关闭过渡动画效果，完成接下来的图片跟随鼠标移动；
+            child.transition = "none";
+            //移动当前 child 的 DOM 元素；
+            //注：由于是操作改变的css属性，故当前的移动不以上一次的移动为前体条件，依然是以初次图片的位置为前提条件；
+            child.style.transform = `translateX(${- position * 614 + moveX}px)`;
         }
-        
-        //mousedown 已经是在 root 上监听， mousemove/mouseup 没有必要在 root 上监听。所以可以在 document 上直接监听这两个事件。在现代浏览器当中，使用 document 监听有额外好处：即使鼠标移出浏览器窗口外，一样可以监听到事件。
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("mouseup", mouseUp);
-    })
-    ```
-    3. 在 this.root.addEventListener("mousedown", (event) => {}) 中实现拖拽切换图片
-    ```js
-    let position = 0;
+    };
+    
+    let mouseUp = event => {
+        let moveX = event.clientX - startX;
+        //定位移动到第几张图片
+        position = position - Math.round(moveX / event.target.clientWidth);
+        for (const child of this.root.children) {
+            //鼠标抬起时将 css 中的过渡动画打开，完成接下来这一张图片接下来本身的移动；
+            child.transition = "";
+            child.style.transform = `translateX(${- position * 614}px)`
+        }
+
+        document.removeEventListener("mousemove", mouseMove);
+        document.removeEventListener("mouseup", mouseUp);
+    }
+
+    document.addEventListener("mousemove", mouseMove);
+    document.addEventListener("mouseup", mouseUp);
+})
+```
+4. 最终实现拖拽
+```js
+let position = 0;
     this.root.addEventListener("mousedown", (event) => {
-        //记录鼠标起始x坐标
-        let startX = event.clientX;
-        let mouseMove = event => {
-            //鼠标x坐标移动的距离
-            let moveX = event.clientX - startX;
-            for (const child of this.root.children) {
-                //为了使 dom 跟随鼠标移动符合人的直觉，鼠标摁下选中图片时关闭过渡动画效果，完成接下来的图片跟随鼠标移动；
-                child.transition = "none";
-                //移动当前 child 的 DOM 元素；
-                //注：由于是操作改变的css属性，故当前的移动不以上一次的移动为前体条件，依然是以初次图片的位置为前提条件；
-                child.style.transform = `translateX(${- position * 614 + moveX}px)`;
-            }
-        };
+    let children = this.root.children;
+    //记录鼠标起始x坐标
+    let startX = event.clientX;
+    let mouseMove = event => {
+        //鼠标x坐标移动的距离
+        let moveX = event.clientX - startX;
+        let clientWidth = event.target.clientWidth
+        //***与相同的*对应可解开注释***当前是第几个
+        let current = position - ((moveX - moveX % clientWidth) / clientWidth);
+        // let current = position - Math.round(moveX / clientWidth);
+        //当前这个及其前后，3张图的便利，然后分别做动画
+        for (const offset of [-1, 0, 1]) {
+            //分别为
+            let pictureIndex = current + offset;
+            pictureIndex = (pictureIndex + children.length) % children.length;
+            //为了使 dom 跟随鼠标移动符合人的直觉，鼠标摁下选中图片时关闭过渡动画效果，完成接下来的图片跟随鼠标移动；
+            children[pictureIndex].style.transition = "none";
+            //移动当前 child 的 DOM 元素；
+            //注：由于是操作改变的css属性，故当前的移动不以上一次的移动为前体条件，依然是以初次图片的位置为前提条件；
+            //***与相同的*对应可解开注释***
+            // children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614}px)`;
+            children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614 + moveX % 614}px)`;
+        }
+    };
+    
+    let mouseUp = event => {
+        let moveX = event.clientX - startX;
+        //定位移动到第几张图片
+        position = position - Math.round(moveX / event.target.clientWidth);
         
-        let mouseUp = event => {
-            let moveX = event.clientX - startX;
-            //定位移动到第几张图片
-            position = position - Math.round(moveX / event.target.clientWidth);
-            for (const child of this.root.children) {
-                //鼠标抬起时将 css 中的过渡动画打开，完成接下来这一张图片接下来本身的移动；
-                child.transition = "";
-                child.style.transform = `translateX(${- position * 614}px)`
-            }
-
-            document.removeEventListener("mousemove", mouseMove);
-            document.removeEventListener("mouseup", mouseUp);
+        for (const offset of [0, -Math.sign(Math.round(moveX / 614) - moveX + 307 * Math.sign(moveX))]) {
+            let pictureIndex = position + offset;
+            pictureIndex = (pictureIndex + children.length) % children.length;
+            children[pictureIndex].style.transition = "";
+            children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614}px)`;
         }
 
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("mouseup", mouseUp);
-    })
-    ```
-    4. 最终实现拖拽
-    ```js
-    let position = 0;
-        this.root.addEventListener("mousedown", (event) => {
-        let children = this.root.children;
-        //记录鼠标起始x坐标
-        let startX = event.clientX;
-        let mouseMove = event => {
-            //鼠标x坐标移动的距离
-            let moveX = event.clientX - startX;
-            let clientWidth = event.target.clientWidth
-            //***与相同的*对应可解开注释***当前是第几个
-            let current = position - ((moveX - moveX % clientWidth) / clientWidth);
-            // let current = position - Math.round(moveX / clientWidth);
-            //当前这个及其前后，3张图的便利，然后分别做动画
-            for (const offset of [-1, 0, 1]) {
-                //分别为
-                let pictureIndex = current + offset;
-                pictureIndex = (pictureIndex + children.length) % children.length;
-                //为了使 dom 跟随鼠标移动符合人的直觉，鼠标摁下选中图片时关闭过渡动画效果，完成接下来的图片跟随鼠标移动；
-                children[pictureIndex].style.transition = "none";
-                //移动当前 child 的 DOM 元素；
-                //注：由于是操作改变的css属性，故当前的移动不以上一次的移动为前体条件，依然是以初次图片的位置为前提条件；
-                //***与相同的*对应可解开注释***
-                // children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614}px)`;
-                children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614 + moveX % 614}px)`;
-            }
-        };
-        
-        let mouseUp = event => {
-            let moveX = event.clientX - startX;
-            //定位移动到第几张图片
-            position = position - Math.round(moveX / event.target.clientWidth);
-            
-            for (const offset of [0, -Math.sign(Math.round(moveX / 614) - moveX + 307 * Math.sign(moveX))]) {
-                let pictureIndex = position + offset;
-                pictureIndex = (pictureIndex + children.length) % children.length;
-                children[pictureIndex].style.transition = "";
-                children[pictureIndex].style.transform = `translateX(${- pictureIndex * 614 + offset * 614}px)`;
-            }
+        document.removeEventListener("mousemove", mouseMove);
+        document.removeEventListener("mouseup", mouseUp);
+    }
 
-            document.removeEventListener("mousemove", mouseMove);
-            document.removeEventListener("mouseup", mouseUp);
-        }
+    document.addEventListener("mousemove", mouseMove);
+    document.addEventListener("mouseup", mouseUp);
+})
+```
 
-        document.addEventListener("mousemove", mouseMove);
-        document.addEventListener("mouseup", mouseUp);
-    })
-    ```
-
-## 6、抽象开发组件需要的能力
+## 5、抽象开发组件需要的能力
 
 > 见接下来文章
 
