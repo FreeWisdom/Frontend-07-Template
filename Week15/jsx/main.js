@@ -17,11 +17,3 @@ let a = (
 )
 
 a.mountTo(document.body);
-
-let tl = new Timeline();
-window.tl = tl;
-
-window.animation = new Animation({ set a(v){console.log("v:", v)} }, "a", 0, 100, 1000, null)
-
-tl.add(animation);
-tl.start();
