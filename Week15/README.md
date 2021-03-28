@@ -1,46 +1,4 @@
-# 组件化
-## 1、组件的基本知识
-### 1.1、组件的基本概念
-### 1.2、对象 与 组件 区别
-### 1.3、component（组件）各要素及信息流转
-### 1.4、Attribute 与 Property 区别
-### 1.5、如何设计组件状态
-### 1.6、组件生命周期 Lifecycle
-### 1.7、组件的子组件 Children
-
-## 2、为组件添加jsx语法
-### 2.1、搭建jsx环境
-### 2.2、jsx的基本使用方法
-
-## 3、实现轮播组件底层封装
-### 3.1、将识别 jsx 语法的功能封装到底层 frameWork.js 中
-### 3.2、顶层的 main.js 中只保留实际封装的 Carousel 功能
-
-## 4、轮播动画
-### 4.1、图片排版
-### 4.2、main.js 中的 render 函数增加轮播逻辑，实现自动轮播
-### 4.3、 实现拖拽
-
-## 5、将 Carousel 类抽离到 jsx 文件夹下新建的 Carousel.js文件，并在 main.js 做引用；
-
-> Carousel.js
-
-```js
-import { Component } from "./frameWork.js";
-
-export class Carousel extends Component{
-    //……………………
-}
-```
-
-> main.js
-
-```js
-import { Component, createElement} from "./frameWork.js";
-import { Carousel } from "./Carousel.js";
-
-//………………
-```
+# 库化（动画、手势）
 
 ## 6、动画
 

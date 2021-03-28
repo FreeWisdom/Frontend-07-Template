@@ -1,4 +1,5 @@
-# 组件化
+# 组件化（轮播图）
+
 ## 1、组件的基本知识
 * 前端架构中最热门的就有两个话题：
     1. 组件化；
@@ -1115,7 +1116,23 @@ let position = 0;
 })
 ```
 
-## 5、抽象开发组件需要的能力
+## 5、将 Carousel 类抽离到 jsx 文件夹下新建的 Carousel.js文件，并在 main.js 做引用；
 
-> 见接下来文章
+> Carousel.js
 
+```js
+import { Component } from "./frameWork.js";
+
+export class Carousel extends Component{
+    //……………………
+}
+```
+
+> main.js
+
+```js
+import { Component, createElement} from "./frameWork.js";
+import { Carousel } from "./Carousel.js";
+
+//………………
+```
