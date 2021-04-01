@@ -692,3 +692,83 @@
 
 ​		通过引用 “yeoman-generator” 创建 Generator 类。Generator 类使用 webpack 、vue loader、copy-webpack-plugin 等通用工具，对 packag.json模板、xxx.vue模板、main.js模板、index.html模板、webpack.config.js模板进行模板设计。从而实现了一个 vue.js 脚手架（generator），通过命令`yo vue`即可创建一个 vue.js 项目后进行开发。
 
+## 4、webpack 提供 build 能力
+
+* webpack最初是为了nodejs设计的，并非为了web开发而设计；
+* 现在webpack做web打包非常多，他的核心思路是最终打包成一个js文件，然后通过手动引入到html文件中, 它可以做多文件的合并，并通过各种loader和plugin去制定各种规则；
+* 使用webpack需要安装两个包， webpack 和 webpack-cli ，webpack是核心， webpack-cli提供命令；
+* webpack配置文件采用commonjs规范：
+  * `module.exports = {}`导出一个对象;
+  * 该对象中包含几个基础模块：entry, output, module, plugin。
+* npx webpack 这个命令运行的时候，会去校验有没有 webpack ，没有就会装了之后再用，装了就会直接用。
+
+## 5、babel 提供 transform 能力
+
+​		http://www.ruanyifeng.com/blog/2016/01/babel.html
+
+## 6、本次创建项目过程中 其他技术能力
+
+### 6.1、npm link
+
+1. **npm link 介绍**
+
+   开发NPM模块的时候，有时我们会希望，边开发边试用，比如本地调试的时候，`require('myModule')`会自动加载本机开发中的模块。Node规定，使用一个模块时，需要将其安装到全局的或项目的`node_modules`目录之中。对于开发中的模块，解决方法就是在全局的`node_modules`目录之中，生成一个符号链接，指向模块的本地目录。`npm link`就能起到这个作用，会自动建立这个符号链接。
+
+2. **npm link 实例**
+
+   请设想这样一个场景，你开发了一个模块`myModule`，目录为`src/myModule`，你自己的项目`myProject`要用到这个模块，项目目录为`src/myProject`。首先，在模块目录（`src/myModule`）下运行`npm link`命令。
+
+   ```shell
+   src/myModule$ npm link
+   ```
+
+   上面的命令会在NPM的全局模块目录内，生成一个符号链接文件，该文件的名字就是`package.json`文件中指定的模块名，如下：
+
+   ```shell
+   /path/to/global/node_modules/myModule -> src/myModule
+   ```
+
+   这个时候，已经可以全局调用`myModule`模块了。但是，如果我们要让这个模块安装在项目内，还要进行下面的步骤。
+
+   切换到项目目录，再次运行`npm link`命令，并指定模块名。
+
+   ```shell
+   src/myProject$ npm link myModule
+   ```
+
+   上面命令等同于生成了本地模块的符号链接如下：
+
+   ```shell
+   src/myProject/node_modules/myModule -> /path/to/global/node_modules/myModule
+   ```
+
+   然后，就可以在你的项目中，加载该模块了。
+
+   ```shell
+   var myModule = require('myModule');
+   ```
+
+   这样一来，`myModule`的任何变化，都可以直接反映在`myProject`项目之中。但是，这样也出现了风险，任何在`myProject`目录中对`myModule`的修改，都会反映到模块的源码中。
+
+   如果你的项目不再需要该模块，可以在项目目录内使用`npm unlink`命令，删除符号链接。
+
+   ```shell
+   src/myProject$ npm unlink myModule
+   ```
+
+### 6.2、npx
+
+- **主要特点**
+
+  1. 临时安装可执行依赖包，不用全局安装，不用担心长期的污染。
+  2. 可以执行依赖包中的命令，安装完成自动运行。
+  3. 自动加载 node_modules 中依赖包，不用指定$PATH。
+  4. 可以指定 node 版本、命令的版本，解决了不同项目使用不同版本的命令的问题。
+
+- **npx 用来解决全局命令行工具只能有一个的问题。**
+
+  > 比如装个 webpack,使用的是 4.x，可是已经装了全局的 1.x 版本并且还要继续使用，这个时候可以不装在全局，用 npx webpack 代替 webpack 命令，互不干扰。
+
+- **npm vs npx**
+
+  > npm 是一个 node package 安装工具。 npx 的作用是先检查本地有没有安装某个 package，如果没有去远程 registry 找，找到的话直接使用，不用下载到本地 node-modules 包里面，这样就能优化本地项目的大小，也可以避免安装 package 到全局。
