@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "html-parser",
+            // 给nodejs的参数;
+            "runtimeArgs": [
+                "--require",
+                "@babel/register"
+            ],
+            // 配置babel后，断点会位置会出现错误，需配置sousourceMap；
+            // 还需要在.babelrc中添加sourceMaps的配置为inlines,不会产生额外的sourcemap文件，否则vscode找不到sourcemap文件；
+            "sourceMaps": true,
+            // 给mocha的参数
+            "args": [],
+            "program": "${workspaceFolder}/node_modules/.bin/mocha"
+        },
+    ]
+}
