@@ -387,3 +387,155 @@
 
 7. `publish-server/server.js`  publish路由：接受发布；
 
+> `publish-tool/publish.js`
+
+```js
+let http = require("http")
+let fs = require("fs")
+let child_process = require("child_process")
+let querystring = require("querystring")
+
+/**
+ * 1、打开：https://github.com/login/oauth/authorize；
+ * 
+ * 4、创建客户端服务器，以便接受 token；
+ * 5、接受 token ，携带 token 点击发布；
+ */
+
+// 1、打开：https://github.com/login/oauth/authorize；
+child_process.exec(`open https://github.com/login/oauth/authorize?client_id=Iv1.56c92eea64ca270d`)
+
+// 4、创建客户端服务器，以便接受 token；
+http.createServer(function(request, response) {
+    let query = querystring.parse(request.url.match(/^\/\?([\s\S]+)$/)[1])
+    
+    // 5、接受 token ，携带 token 点击发布；
+    publish(query.token);
+}).listen(8083)
+
+function publish(token) {
+    let request = http.request({
+        hostname: "127.0.0.1",
+        port: 8082,
+        path: "/publish?token=" + token,
+        method: "POST",
+        headers: {
+            "Content-Type": "application/octet-stream",
+        }
+    }, response => {
+        console.log(response);
+        // request.end("succese!");
+        // response.end("<h1>success!</h1>")
+    })
+    
+    // 对(sample)文件夹下的内容进行压缩
+    const archiver = require('archiver');
+    const archive = archiver("zip", {
+        zlib: { level: 9 }
+    });
+    archive.directory("./sample/", false);
+    archive.finalize(); // 表示为压缩工具填好了压缩内容
+    archive.pipe(fs.createWriteStream("tmp.zip"));
+    
+    // 将压缩后的文件流倒入request流
+    archive.pipe(request);
+}
+```
+
+> `publish-server/server.js`
+
+```js
+let http = require("http")
+let https = require("https")
+let unzipper = require("unzipper")
+let querystring = require("querystring")
+const { callbackify } = require("util")
+
+/**
+ * 2、auth路由：接收 code ；
+ * 3、auth路由：用 code + client_id + client_secret 
+ * 
+ * 6、publish路由：token 获取用户信息，检查权限；
+ * 7、publish路由：接受发布；
+ */
+
+function auth(request, response) {
+    
+    // 2、auth路由：接收 code ；
+    let query = querystring.parse(request.url.match(/^\/auth\?([\s\S]+)$/)[1])
+    console.log("auth____query:", query.code) // query: [Object: null prototype] { code: 'd1d18db1375e6589d7ef' }
+
+    // 3、auth路由：用 code + client_id + client_secret 换 token；
+    getToken(query.code, function(info) {
+        console.log("auth____info", info);
+        response.write(`<a href="http://localhost:8083?token=${info.access_token}">send token to publish-tool/publish(8083)</a>`);
+        response.end();
+    });
+}
+
+function getToken(code, callback) {
+    let request = https.request({
+        hostname: "gitHub.com",
+        path: `/login/oauth/access_token?code=${code}&client_id=Iv1.56c92eea64ca270d&client_secret=a5c7ca868a0accb3475bf46dd19192e839cd6029`,
+        port: 443,
+        methods: "POST"
+    }, function(response) {
+        let body = "";
+        response.on("data", chunk => {
+            body += (chunk.toString());
+        })
+        response.on("end", chunk => {
+            callback(querystring.parse(body));
+        })
+    });
+    request.end();
+}
+
+function getUser(token, callback) {
+    let request = https.request({
+        hostname: "api.gitHub.com",
+        path: `/user`,
+        port: 443,
+        methods: "GET",
+        headers: {
+            Authorization: `token ${token}`,
+            "User-Agent": "toy-publish"
+        }
+    }, function(response) {
+        let body = "";
+        response.on("data", chunk => {
+            body += (chunk.toString());
+        })
+        response.on("end", chunk => {
+            callback(JSON.parse(body))
+        })
+    });
+    request.end();
+}
+
+function publish(request, response) {
+    let query = querystring.parse(request.url.match(/^\/publish\?([\s\S]+)$/)[1])
+
+    // 6、publish路由：token 获取用户信息，检查权限；
+    getUser(query.token, function(info) {
+
+        // 7、publish路由：接受发布；
+        if(info.login === "FreeWisdom") {
+            // 将压缩后的文件解压
+            request.pipe(unzipper.Extract({ path: '../server/public' }));
+            request.on("end", function() {
+                response.end("success!")
+            })
+        }
+    });
+}
+
+http.createServer(function(request, response) {
+    if(request.url.match(/^\/auth\?/))
+        return auth(request, response)
+    if(request.url.match(/^\/publish\?/))
+        return publish(request, response)
+}).listen(8082)
+```
+
+至此，发布系统结束，但还不是完成状态，需要根据公司的权限系统进行接入，是有关node应用的开发，配置完权限才算真正完成发布系统。
