@@ -114,8 +114,8 @@ function exec(name) {
     const eslint = new ESLint({ fix: false });
 
     // 2. 对目标目录文件夹的文件进行 lint ，不会对文件进行修改；
-    await exec("git stash push -k")
-    const results = await eslint.lintFiles(["index.js"]);
+    await exec("git stash push -k")		// 存储正在工作中的git；
+    const results = await eslint.lintFiles(["index.js"]);		// 对add .中的进行eslint校验；
     await exec("git stash pop")
 
     // 跳过第三步
